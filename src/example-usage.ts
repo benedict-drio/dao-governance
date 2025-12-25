@@ -212,7 +212,7 @@ async function exampleCheckMembership(daoService: any, address: string) {
 async function main() {
   try {
     // Initialize the app
-    const { walletKit, walletService, daoService } = await initializeApp();
+    const { walletService, daoService } = await initializeApp();
 
     // Example: Connect a wallet
     const myAddress = 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM';
@@ -222,7 +222,7 @@ async function main() {
     await exampleCheckMembership(daoService, myAddress);
 
     // Example: Create a proposal
-    const proposal = await exampleCreateProposal(daoService);
+    await exampleCreateProposal(daoService);
 
     // Example: Vote on the proposal
     await exampleVoteOnProposal(daoService, 1, true);
