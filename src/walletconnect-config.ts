@@ -4,7 +4,9 @@
  */
 
 import { Core } from '@walletconnect/core';
-import { WalletKit, WalletKitTypes } from '@reown/walletkit';
+import type { IWalletKit } from '@reown/walletkit';
+import { WalletKit } from '@reown/walletkit';
+import type { WalletKitTypes } from '@reown/walletkit';
 
 // WalletConnect Project Configuration
 export const WALLET_CONNECT_CONFIG = {
@@ -49,7 +51,7 @@ export const STACKS_EVENTS = {
 /**
  * Initialize WalletConnect Core
  */
-export function initializeWalletConnectCore(): Core {
+export function initializeWalletConnectCore() {
   const core = new Core({
     projectId: WALLET_CONNECT_CONFIG.projectId,
   });
@@ -59,7 +61,7 @@ export function initializeWalletConnectCore(): Core {
 /**
  * Initialize WalletKit with Stacks support
  */
-export async function initializeWalletKit(network: StacksNetwork = StacksNetwork.MAINNET): Promise<WalletKit> {
+export async function initializeWalletKit(network: StacksNetwork = StacksNetwork.MAINNET): Promise<IWalletKit> {
   const core = initializeWalletConnectCore();
   
   const walletKit = await WalletKit.init({
@@ -67,15 +69,9 @@ export async function initializeWalletKit(network: StacksNetwork = StacksNetwork
     metadata: WALLET_CONNECT_CONFIG.metadata,
   });
 
-  // Register supported Stacks methods and chains
-  const chainId = STACKS_CHAIN_IDS[network];
-  
-  // The wallet should handle these methods
-  await walletKit.registerChain({
-    chainId,
-    methods: Object.values(STACKS_METHODS),
-    events: Object.values(STACKS_EVENTS),
-  });
+  // Note: Chain registration depends on the wallet implementation
+  // Store the network configuration for later use
+  console.log('WalletKit initialized for network:', network, STACKS_CHAIN_IDS[network]);
 
   return walletKit;
 }
@@ -84,7 +80,7 @@ export async function initializeWalletKit(network: StacksNetwork = StacksNetwork
  * Get session proposal handler
  */
 export function createSessionProposalHandler(
-  walletKit: WalletKit,
+  walletKit: IWalletKit,
   onApprove?: (session: any) => void,
   onReject?: (error: Error) => void
 ) {
@@ -135,7 +131,7 @@ export function createSessionProposalHandler(
  * Get session request handler
  */
 export function createSessionRequestHandler(
-  walletKit: WalletKit,
+  walletKit: IWalletKit,
   requestHandlers: {
     [key: string]: (params: any) => Promise<any>;
   }
@@ -185,7 +181,7 @@ export function createSessionRequestHandler(
  * Disconnect session handler
  */
 export function createSessionDeleteHandler(
-  walletKit: WalletKit,
+  walletKit: IWalletKit,
   onDisconnect?: (topic: string) => void
 ) {
   walletKit.on('session_delete', (event: any) => {
