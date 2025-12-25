@@ -1,0 +1,18 @@
+---
+id: 0
+name: Mainnet deployment
+network: mainnet
+stacks-node: "https://api.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoin.blockstack.com:8332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: dao-governance
+            expected-sender: SP3P2G9ZK7B309EGAM9QAM143YGDNBGGQAXDAS1GW
+            cost: 96880
+            path: contracts/dao-governance.clar
+            anchor-block-only: true
+            clarity-version: 4
+      epoch: "3.3"
