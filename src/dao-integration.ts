@@ -3,7 +3,7 @@
  * Provides methods to interact with the DAO contract using WalletConnect
  */
 
-import { WalletKit } from '@reown/walletkit';
+import type { IWalletKit } from '@reown/walletkit';
 import { StacksWalletService, STXToMicroSTX } from './stacks-wallet';
 import { StacksNetwork } from './walletconnect-config';
 
@@ -57,7 +57,7 @@ export class DAOGovernanceService {
   /**
    * Check if user is a DAO member
    */
-  async isDAOMember(address: string): Promise<boolean> {
+  async isDAOMember(_address: string): Promise<boolean> {
     // In a real implementation, this would query the contract
     // For now, returning a placeholder
     // You would use Stacks.js to make a read-only contract call
@@ -67,7 +67,7 @@ export class DAOGovernanceService {
   /**
    * Get member's voting power
    */
-  async getMemberVotingPower(address: string): Promise<number> {
+  async getMemberVotingPower(_address: string): Promise<number> {
     // In a real implementation, query the contract for voting power
     return 1;
   }
@@ -83,7 +83,7 @@ export class DAOGovernanceService {
   /**
    * Get proposal details
    */
-  async getProposal(proposalId: number): Promise<Proposal | null> {
+  async getProposal(_proposalId: number): Promise<Proposal | null> {
     // In a real implementation, query the contract for proposal details
     // This would be a read-only contract call
     return null;
@@ -317,7 +317,7 @@ export class DAOGovernanceService {
   /**
    * Check if a proposal has passed
    */
-  async hasProposalPassed(proposalId: number): Promise<boolean> {
+  async hasProposalPassed(_proposalId: number): Promise<boolean> {
     // In a real implementation, this would be a read-only contract call
     return false;
   }
@@ -325,7 +325,7 @@ export class DAOGovernanceService {
   /**
    * Check if voting is still active for a proposal
    */
-  async isVotingActive(proposalId: number): Promise<boolean> {
+  async isVotingActive(_proposalId: number): Promise<boolean> {
     // In a real implementation, this would be a read-only contract call
     return true;
   }
@@ -335,7 +335,7 @@ export class DAOGovernanceService {
  * Factory function to create a DAO Governance Service instance
  */
 export function createDAOGovernanceService(
-  walletKit: WalletKit,
+  walletKit: IWalletKit,
   config: DAOConfig
 ): DAOGovernanceService {
   const walletService = new StacksWalletService(walletKit, config.network);
