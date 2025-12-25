@@ -12,7 +12,8 @@
     "chainhooks:register": "tsx chainhooks/dao-monitor.ts register",
     "chainhooks:list": "tsx chainhooks/dao-monitor.ts list",
     "chainhooks:delete-all": "tsx chainhooks/dao-monitor.ts delete-all",
-    "chainhooks:status": "tsx chainhooks/dao-monitor.ts"
+    "chainhooks:status": "tsx chainhooks/dao-monitor.ts",
+    "walletconnect:example": "tsx src/example-usage.ts"
   },
   "author": "",
   "license": "ISC",
