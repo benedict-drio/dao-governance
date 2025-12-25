@@ -3,23 +3,7 @@
  * Handles Stacks-specific wallet operations via WalletConnect
  */
 
-import { WalletKit } from '@reown/walletkit';
-import {
-  makeSTXTokenTransfer,
-  makeContractCall,
-  SignedContractCallOptions,
-  broadcastTransaction,
-  AnchorMode,
-  PostConditionMode,
-  FungibleConditionCode,
-  makeStandardSTXPostCondition,
-  bufferCVFromString,
-  uintCV,
-  principalCV,
-  stringAsciiCV,
-  stringUtf8CV,
-  PostCondition,
-} from '@stacks/transactions';
+import type { IWalletKit } from '@reown/walletkit';
 import { STACKS_METHODS, StacksNetwork } from './walletconnect-config';
 
 export interface StacksAddress {
@@ -66,20 +50,20 @@ export interface CallContractParams {
  * Manages wallet connections and Stacks blockchain interactions
  */
 export class StacksWalletService {
-  private walletKit: WalletKit;
-  private network: StacksNetwork;
+  private walletKit: IWalletKit;
+  private _network: StacksNetwork;
   private connectedAddress: string | null = null;
 
-  constructor(walletKit: WalletKit, network: StacksNetwork = StacksNetwork.MAINNET) {
+  constructor(walletKit: IWalletKit, network: StacksNetwork = StacksNetwork.MAINNET) {
     this.walletKit = walletKit;
-    this.network = network;
+    this._network = network;
   }
 
   /**
    * Get connected wallet addresses
    */
   async getAddresses(topic: string): Promise<GetAddressesResponse> {
-    const response = await this.walletKit.respondSessionRequest({
+    await this.walletKit.respondSessionRequest({
       topic,
       response: {
         id: Date.now(),
@@ -131,16 +115,6 @@ export class StacksWalletService {
     if (params.sender !== this.connectedAddress) {
       throw new Error('Sender address does not match connected wallet');
     }
-
-    // Create STX transfer transaction
-    const txOptions = {
-      recipient: params.recipient,
-      amount: BigInt(params.amount),
-      memo: params.memo || '',
-      network: this.getNetworkConfig(params.network),
-      anchorMode: AnchorMode.Any,
-      // Note: In a real implementation, you'd need to get the nonce and fee from the network
-    };
 
     // In a real implementation, you would:
     // 1. Build the transaction using makeSTXTokenTransfer
@@ -237,18 +211,18 @@ export class StacksWalletService {
   /**
    * Get network configuration based on network string
    */
-  private getNetworkConfig(network?: string): any {
-    // This should return the appropriate Stacks network config
-    // For now, returning a placeholder
-    return network || this.network;
-  }
+  // private getNetworkConfig(network?: string): any {
+  //   // This should return the appropriate Stacks network config
+  //   // For now, returning a placeholder
+  //   return network || this.network;
+  // }
 
   /**
    * Create request handlers for WalletConnect
    */
   createRequestHandlers() {
     return {
-      [STACKS_METHODS.GET_ADDRESSES]: async (params: any) => {
+      [STACKS_METHODS.GET_ADDRESSES]: async (_params: any) => {
         return {
           addresses: [
             {
