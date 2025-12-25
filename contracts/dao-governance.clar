@@ -217,3 +217,47 @@
     (ok proposal-id)
   )
 )
+
+;; Vote on a proposal
+(define-public (vote (proposal-id uint) (support bool))
+  (let
+    (
+      (proposal (unwrap! (map-get? proposals proposal-id) err-proposal-not-found))
+      (voter-power (get-voting-power tx-sender))
+    )
+    (asserts! (is-member tx-sender) err-not-member)
+    (asserts! (not (has-voted proposal-id tx-sender)) err-already-voted)
+    (asserts! (is-voting-active proposal-id) err-voting-ended)
+    
+    ;; Record the vote
+    (map-set votes
+      {proposal-id: proposal-id, voter: tx-sender}
+      {vote: support, power: voter-power}
+    )
+    
+    ;; Update vote counts
+    (map-set proposals proposal-id
+      (merge proposal
+        {
+          yes-votes: (if support 
+            (+ (get yes-votes proposal) voter-power)
+            (get yes-votes proposal)
+          ),
+          no-votes: (if support 
+            (get no-votes proposal)
+            (+ (get no-votes proposal) voter-power)
+          )
+        }
+      )
+    )
+    
+    (print {
+      event: "vote-cast",
+      proposal-id: proposal-id,
+      voter: tx-sender,
+      support: support,
+      power: voter-power
+    })
+    (ok true)
+  )
+)
