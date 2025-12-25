@@ -261,3 +261,57 @@
     (ok true)
   )
 )
+
+;; Execute a passed proposal
+(define-public (execute-proposal (proposal-id uint))
+  (let
+    (
+      (proposal (unwrap! (map-get? proposals proposal-id) err-proposal-not-found))
+    )
+    (asserts! (>= stacks-block-height (get end-block proposal)) err-voting-not-ended)
+    (asserts! (not (get executed proposal)) err-proposal-already-executed)
+    (asserts! (has-proposal-passed proposal-id) err-proposal-not-passed)
+    
+    ;; Transfer funds from treasury
+    (try! (as-contract? ((with-stx (get amount proposal)))
+      (unwrap! (stx-transfer? 
+        (get amount proposal)
+        tx-sender
+        (get recipient proposal)
+      ) (err u500))
+    ))
+    
+    ;; Mark as executed
+    (map-set proposals proposal-id
+      (merge proposal {executed: true})
+    )
+    
+    (print {
+      event: "proposal-executed",
+      proposal-id: proposal-id,
+      recipient: (get recipient proposal),
+      amount: (get amount proposal),
+      executor: tx-sender
+    })
+    (ok true)
+  )
+)
+
+;; Cancel a proposal (only proposer or owner)
+(define-public (cancel-proposal (proposal-id uint))
+  (let
+    (
+      (proposal (unwrap! (map-get? proposals proposal-id) err-proposal-not-found))
+    )
+    (asserts! 
+      (or 
+        (is-eq tx-sender (get proposer proposal))
+        (is-eq tx-sender contract-owner)
+      )
+      err-owner-only
+    )
+    (asserts! (not (get executed proposal)) err-proposal-already-executed)
+    
+    (map-set proposals proposal-id
+      (merge proposal {cancelled: true})
+    )
