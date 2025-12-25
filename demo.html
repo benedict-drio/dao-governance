@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAO Governance - WalletConnect Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status.disconnected {
+            background: #fee;
+            color: #c33;
+        }
+
+        .status.connected {
+            background: #efe;
+            color: #3c3;
+        }
+
+        .wallet-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.secondary {
+            background: #764ba2;
+        }
+
+        button.secondary:hover {
+            background: #653a8a;
+        }
+
+        button.danger {
+            background: #e74c3c;
+        }
+
+        button.danger:hover {
+            background: #c0392b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .proposals-list {
+            margin-top: 20px;
+        }
+
+        .proposal-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .proposal-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .proposal-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .proposal-actions {
+            margin-top: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.passed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge.active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .qr-code {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .qr-code img {
+            max-width: 300px;
+            height: auto;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            .proposal-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="card">
+            <h1>🏛️ DAO Governance</h1>
+            <p class="subtitle">WalletConnect Integration Demo</p>
+            
+            <div class="instructions">
+                <strong>Getting Started:</strong>
+                <ol>
+                    <li>Get a WalletConnect Project ID from <a href="https://cloud.walletconnect.com" target="_blank">cloud.walletconnect.com</a></li>
+                    <li>Configure your .env file with the Project ID</li>
+                    <li>Build and bundle this application for browser use</li>
+                    <li>Connect your Stacks wallet to interact with the DAO</li>
+                </ol>
+            </div>
+
+            <div id="status" class="status disconnected">
+                Status: Not Connected
+            </div>
+
+            <div id="walletInfo" style="display: none;" class="wallet-info">
+                <strong>Connected Wallet:</strong>
+                <div id="walletAddress"></div>
+            </div>
+
+            <button id="connectBtn">Connect Wallet</button>
+            <button id="disconnectBtn" style="display: none;" class="danger">Disconnect</button>
+        </div>
+
+        <!-- DAO Stats -->
+        <div class="grid" id="daoStats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="treasuryBalance">0</div>
+                <div class="stat-label">Treasury Balance (STX)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="memberCount">0</div>
+                <div class="stat-label">DAO Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="proposalCount">0</div>
+                <div class="stat-label">Total Proposals</div>
+            </div>
+        </div>
+
+        <!-- Create Proposal -->
+        <div class="card" id="createProposalSection" style="display: none;">
+            <h2>Create New Proposal</h2>
+            <form id="proposalForm">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="proposalTitle" placeholder="Proposal title (max 256 characters)" maxlength="256" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="proposalDescription" placeholder="Describe your proposal (max 1024 characters)" maxlength="1024" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Recipient Address</label>
+                    <input type="text" id="recipientAddress" placeholder="ST..." required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (STX)</label>
+                    <input type="number" id="amount" placeholder="100" min="0" step="0.000001" required>
+                </div>
+                <button type="submit">Submit Proposal</button>
+            </form>
+        </div>
+
+        <!-- Proposals List -->
+        <div class="card" id="proposalsSection" style="display: none;">
+            <h2>Active Proposals</h2>
+            <div id="proposalsList" class="proposals-list">
+                <!-- Proposals will be dynamically loaded here -->
+                <p style="color: #666; text-align: center;">No proposals yet. Create the first one!</p>
+            </div>
+        </div>
+
+        <!-- Deposit to Treasury -->
+        <div class="card" id="depositSection" style="display: none;">
+            <h2>Deposit to Treasury</h2>
+            <form id="depositForm">
+                <div class="form-group">
+                    <label>Amount (STX)</label>
+                    <input type="number" id="depositAmount" placeholder="50" min="0" step="0.000001" required>
+                </div>
+                <button type="submit" class="secondary">Deposit</button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="card" style="text-align: center; color: #666;">
+            <p>Built with WalletConnect & Stacks</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="https://docs.walletconnect.network/" target="_blank">WalletConnect Docs</a> |
+                <a href="https://docs.stacks.co/" target="_blank">Stacks Docs</a> |
+                <a href="./WALLETCONNECT.md" target="_blank">Integration Guide</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        // This is a placeholder for the bundled JavaScript
+        // In production, you would:
+        // 1. Bundle your TypeScript files using Vite, Webpack, or similar
+        // 2. Include the bundled JavaScript here
+        // 3. Initialize the WalletConnect integration
+        
+        console.log('DAO Governance Demo loaded');
+        console.log('To use this demo, you need to:');
+        console.log('1. Bundle the TypeScript source files');
+        console.log('2. Configure WalletConnect with your Project ID');
+        console.log('3. Implement the UI interactions');
+
+        // Placeholder UI handlers
+        document.getElementById('connectBtn')?.addEventListener('click', () => {
+            alert('Please bundle the application and configure WalletConnect to enable this feature.');
+        });
+    </script>
+</body>
+</html>
