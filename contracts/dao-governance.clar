@@ -315,3 +315,57 @@
     (map-set proposals proposal-id
       (merge proposal {cancelled: true})
     )
+    
+    (print {
+      event: "proposal-cancelled",
+      proposal-id: proposal-id,
+      cancelled-by: tx-sender
+    })
+    (ok true)
+  )
+)
+
+;; Deposit STX to treasury
+(define-public (deposit-to-treasury (amount uint))
+  (begin
+    (asserts! (> amount u0) err-invalid-amount)
+    (try! (stx-transfer? amount tx-sender current-contract))
+    (print {
+      event: "treasury-deposit",
+      from: tx-sender,
+      amount: amount
+    })
+    (ok true)
+  )
+)
+
+;; Emergency withdrawal (only owner, for safety)
+(define-public (emergency-withdraw (amount uint) (recipient principal))
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (try! (as-contract? ((with-stx amount))
+      (unwrap! (stx-transfer? amount tx-sender recipient) (err u500))
+    ))
+    (print {
+      event: "emergency-withdrawal",
+      amount: amount,
+      recipient: recipient
+    })
+    (ok true)
+  )
+)
+
+;; Update voting power (governance action)
+(define-public (update-voting-power (member principal) (new-power uint))
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-member member) err-not-member)
+    (map-set member-voting-power member new-power)
+    (print {
+      event: "voting-power-updated",
+      member: member,
+      new-power: new-power
+    })
+    (ok true)
+  )
+)
