@@ -18,9 +18,12 @@
   "license": "ISC",
   "dependencies": {
     "@hirosystems/chainhooks-client": "^1.0.0",
+    "@reown/walletkit": "^1.4.1",
     "@stacks/clarinet-sdk": "^3.9.0",
     "@stacks/transactions": "^7.2.0",
     "@types/node": "^24.4.0",
+    "@walletconnect/core": "^2.23.1",
+    "@walletconnect/utils": "^2.23.1",
     "chokidar-cli": "^3.0.0",
     "tsx": "^4.21.0",
     "vitest": "^4.0.7",
